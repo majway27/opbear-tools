@@ -1,0 +1,38 @@
+# Create a Cognito Identity and Set roles
+# aws cognito-identity create-identity-pool --identity-pool-name opbear_idp --allow-unauthenticated-identities --region us-west-2
+    $aws_cmd cognito-identity create-identity-pool
+      --identity-pool-name $IDENTITY_POOL_NAME
+      --allow-unauthenticated-identities
+      --region $REGION
+
+# Create the user pool
+# aws cognito-idp create-user-pool --pool-name opbear --auto-verified-attributes email --policies file://user-pool-policy.json --region us-west-2
+    $aws_cmd cognito-idp create-user-pool
+      --pool-name $POOL_NAME 
+      --auto-verified-attributes email 
+      --policies file://user-pool-policy.json
+      --region $REGION
+
+# Create the user pool client
+# aws cognito-idp create-user-pool-client --user-pool-id us-west-2_SuK4NO2Xh --no-generate-secret --client-name webapp --region us-west-2
+    $aws_cmd cognito-idp create-user-pool-client 
+      --user-pool-id $USER_POOL_ID 
+      --no-generate-secret 
+      --client-name webapp 
+      --region $REGION
+
+# Add the user pool and user pool client id to the identity pool
+# aws cognito-identity update-identity-pool --allow-unauthenticated-identities --identity-pool-id us-west-2:78f0285b-21d3-4d45-8e9c-f50fe9a9424c --identity-pool-name opbear_idp --cognito-identity-providers ProviderName=cognito-idp.us-west-2.amazonaws.com/us-west-2_SuK4NO2Xh,ClientId=6jd8vavj7lbus9d23a2l9gp7kv --region us-west-2
+    $aws_cmd cognito-identity update-identity-pool 
+      --allow-unauthenticated-identities 
+      --identity-pool-id $IDENTITY_POOL_ID 
+      --identity-pool-name $IDENTITY_POOL_NAME
+      --cognito-identity-providers ProviderName=cognito-idp.$REGION.amazonaws.com/$USER_POOL_ID,ClientId=$USER_POOL_CLIENT_ID 
+      --region $REGION
+
+# Update cognito identity with the roles
+# aws cognito-identity set-identity-pool-roles 
+    $aws_cmd cognito-identity set-identity-pool-roles 
+      --identity-pool-id $IDENTITY_POOL_ID 
+      --roles authenticated=$AUTH_ROLE_ARN,unauthenticated=$UNAUTH_ROLE_ARN 
+      --region $REGION
